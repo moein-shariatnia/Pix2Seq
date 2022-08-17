@@ -3,3 +3,4 @@ __pycache__
 VOCdevkit
 *.ipynb
 *.tar
+*.pth
