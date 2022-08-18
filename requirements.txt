@@ -1,3 +1,4 @@
 gdown
 timm
 transformers
+tqdm

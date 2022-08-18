@@ -1,12 +1,16 @@
-
+import cv2
+import argparse
 import torch
 from torch import nn
 import numpy as np
+import pandas as pd
 from glob import glob
 from tqdm import tqdm
 from transformers import top_k_top_p_filtering
+from map_boxes import mean_average_precision_for_boxes
 
-from utils import seed_everything
+
+from utils import reformat_preds, seed_everything
 from preprocess import build_df
 from dataset import split_df, get_loaders
 from tokenizer import Tokenizer
@@ -96,8 +100,41 @@ if __name__ == '__main__':
     all_bboxes = []
     with torch.no_grad():
         for x, _ in tqdm(valid_loader):
-            batch_preds, confs = generate_batch(model, x, max_len=21, top_k=0, top_p=1)
+            batch_preds, confs = generate_batch(model, x, max_len=101, top_k=0, top_p=1)
             bboxes = extract_bboxes(batch_preds, confs, tokenizer.EOS_code)
             all_bboxes.extend(bboxes)
+    
+    
+    preds_df = pd.DataFrame()
+    # valid_df = valid_df.iloc[:len(all_bboxes)]
+    preds_df['id'] = valid_df['id'].copy()
+    preds_df['pred'] = all_bboxes
+    preds_df.to_csv("voc_preds.csv", index=False)
+    
+    preds_df = pd.read_csv("voc_preds.csv")[['id', 'pred']]
+    preds_df = reformat_preds(preds_df, tokenizer)
+    
+    valid_df = df[df['id'].isin(preds_df['id'].unique())].reset_index(drop=True)
+    
+    shapes = {img_path: cv2.imread(img_path).shape[:2] for img_path in valid_df['img_path'].unique()}
+    shapes = pd.DataFrame(valid_df['img_path'].map(shapes).tolist(), columns=['h', 'w'])
+    valid_df = pd.concat([valid_df, shapes], axis=1)
+    
+    valid_df['xmin'] = valid_df['xmin'] / valid_df['w']
+    valid_df['xmax'] = valid_df['xmax'] / valid_df['w']
+    valid_df['ymin'] = valid_df['ymin'] / valid_df['h']
+    valid_df['ymax'] = valid_df['ymax'] / valid_df['h']
+    
+    
+    preds_df['label'] = preds_df['label'].map(id2cls)
+    valid_df['label'] = valid_df['label'].map(id2cls)
+    
+    
+    ann = valid_df[['id', 'label', 'xmin', 'xmax', 'ymin', 'ymax']].values
+    det = preds_df[['id', 'label', 'conf', 'xmin', 'xmax', 'ymin', 'ymax']].values
+
+    mean_ap, average_precisions = mean_average_precision_for_boxes(ann, det, iou_threshold=0.5)
+
+    
     
 
