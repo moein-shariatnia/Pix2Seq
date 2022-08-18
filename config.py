@@ -17,3 +17,7 @@ class CFG:
     
     lr = 1e-4
     weight_decay = 1e-4
+    
+    
+    generation_steps = 101
+    run_eval = False

@@ -57,29 +57,3 @@ class AvgMeter:
 def get_lr(optimizer):
     for param_group in optimizer.param_groups:
         return param_group["lr"]
-
-
-def reformat_preds(preds_df, tokenizer):
-    """
-    preds_df: dataframe containing two columns -> ['id', 'preds']
-    tokenizer: tokenizer object used in training
-    """
-
-    preds_df['pred'] = preds_df['pred'].map(
-        lambda x: eval(x) if not pd.isna(x) else [])
-    preds_df = preds_df.explode("pred")
-    preds_df['pred'] = preds_df['pred'].map(
-        lambda x: x if isinstance(x, list) else [-1]*6)
-
-    preds = pd.DataFrame(preds_df['pred'].tolist(), columns=[
-                         'xmin', 'ymin', 'xmax', 'ymax', 'label', 'conf'])
-    preds[['xmin', 'ymin', 'xmax', 'ymax']] = preds[[
-        'xmin', 'ymin', 'xmax', 'ymax']] / float(CFG.img_size)
-
-    preds_df.reset_index(drop=True, inplace=True)
-    preds.reset_index(drop=True, inplace=True)
-
-    preds_df = pd.concat([preds_df, preds], axis=1)
-    preds_df['label'] = preds_df['label'] - tokenizer.num_bins
-
-    return preds_df

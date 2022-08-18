@@ -84,16 +84,16 @@ def collate_fn(batch, max_len, pad_idx):
 def split_df(df, n_folds=5, training_fold=0):
     mapping = df.groupby("id")['img_path'].agg(len).to_dict()
     df['stratify'] = df['id'].map(mapping)
-    
-    kfold = StratifiedGroupKFold(n_splits=n_folds, shuffle=True, random_state=42)
 
+    kfold = StratifiedGroupKFold(
+        n_splits=n_folds, shuffle=True, random_state=42)
 
     for i, (_, val_idx) in enumerate(kfold.split(df, y=df['stratify'], groups=df['id'])):
         df.loc[val_idx, 'fold'] = i
-        
+
     train_df = df[df['fold'] != training_fold].reset_index(drop=True)
     valid_df = df[df['fold'] == training_fold].reset_index(drop=True)
-    
+
     return train_df, valid_df
 
 
@@ -124,3 +124,24 @@ def get_loaders(train_df, valid_df, tokenizer, img_size, batch_size, max_len, pa
     )
 
     return trainloader, validloader
+
+
+class VOCDatasetTest(torch.utils.data.Dataset):
+    def __init__(self, img_paths, size):
+        self.img_paths = img_paths
+        self.transforms = A.Compose([A.Resize(size, size), A.Normalize()])
+
+    def __getitem__(self, idx):
+        img_path = self.img_paths[idx]
+
+        img = cv2.imread(img_path)[..., ::-1]
+
+        if self.transforms is not None:
+            img = self.transforms(image=img)['image']
+
+        img = torch.FloatTensor(img).permute(2, 0, 1)
+
+        return img
+
+    def __len__(self):
+        return len(self.img_paths)

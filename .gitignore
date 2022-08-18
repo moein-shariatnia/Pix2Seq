@@ -5,3 +5,4 @@ VOCdevkit
 *.ipynb
 *.tar
 *.pth
+results
