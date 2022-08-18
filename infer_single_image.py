@@ -11,13 +11,9 @@ from tokenizer import Tokenizer
 from config import CFG
 from visualize import visualize
 
-
-with open("valid_paths.txt", "r") as f:
-    img_paths = f.readlines()
-    img_paths = [path.strip() for path in img_paths]
-    
-idxs = np.random.randint(0, len(img_paths)-1, size=10)
-img_paths = [img_paths[idx] for idx in idxs]
+img_paths = """2007_002648.jpg 2009_001611.jpg 2009_001643.jpg 2009_003956.jpg 2010_001669.jpg 2011_005895.jpg 2012_001185.jpg 2008_004301.jpg 2009_001614.jpg 2009_001673.jpg 2010_000803.jpg 2011_001054.jpg 2011_006197.jpg 2012_002955.jpg 2009_001466.jpg 2009_001623.jpg 2009_003233.jpg 2010_001109.jpg 2011_001526.jpg 2011_006707.jpg 2012_003463.jpg"""
+img_paths = ["./VOCdevkit/VOC2012/JPEGImages/" + path for path in img_paths.split(" ")]
+print(img_paths, len(img_paths))
 
 if __name__ == '__main__':
     with open("classes.txt", 'r') as f:
@@ -62,6 +58,7 @@ if __name__ == '__main__':
     for i, (bboxes, labels, confs) in enumerate(zip(all_bboxes, all_labels, all_confs)):
         img_path = img_paths[i]
         img = cv2.imread(img_path)[..., ::-1]
+        img = cv2.resize(img, (CFG.img_size, CFG.img_size))
         img = visualize(img, bboxes, labels, id2cls, show=False)
 
         cv2.imwrite("results/" + img_path.split("/")[-1], img[..., ::-1])

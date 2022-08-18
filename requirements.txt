@@ -2,3 +2,4 @@ gdown
 timm
 transformers
 tqdm
+map-boxes
