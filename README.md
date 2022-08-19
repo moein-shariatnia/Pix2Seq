@@ -4,6 +4,8 @@
 
 # Introduction
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1UeYIZ6_GHNwCHSi8nNV5dVc3oUrM5-BA?usp=sharing)
+
 Object detection does not have to be a difficult task! I clearly remember the first time I implemented YOLO from scratch and it was a pain to understand how it works under the hood. For the beginners in computer vision applications, I believe that object detection is the hardest one to understand among classification, segmentation, and etc.
 
 Once I first heard about the paper "[Pix2seq: A Language Modeling Framework for Object Detection](https://arxiv.org/abs/2109.10852)" , I got pretty damn excited and I was sure my next blog post will be about it; so, here I am writing this post and hoping that you'll like it and find the pix2seq model easy to understand and implement.
@@ -41,13 +43,6 @@ You can see the high level pipeline of this project in the picture above. As you
 !pip install timm -q
 !pip install transformers -q
 ```
-
-    [K     |████████████████████████████████| 509 kB 32.8 MB/s 
-    [K     |████████████████████████████████| 4.7 MB 36.8 MB/s 
-    [K     |████████████████████████████████| 6.6 MB 46.1 MB/s 
-    [K     |████████████████████████████████| 596 kB 62.2 MB/s 
-    [K     |████████████████████████████████| 101 kB 12.1 MB/s 
-    [?25h
 
 # Imports
 
@@ -413,35 +408,6 @@ df.head()
     }
   </style>
 
-      <script>
-        const buttonEl =
-          document.querySelector('#df-acbb1872-4250-46fa-b9b8-d0402df7b8af button.colab-df-convert');
-        buttonEl.style.display =
-          google.colab.kernel.accessAllowed ? 'block' : 'none';
-
-        async function convertToInteractive(key) {
-          const element = document.querySelector('#df-acbb1872-4250-46fa-b9b8-d0402df7b8af');
-          const dataTable =
-            await google.colab.kernel.invokeFunction('convertToInteractive',
-                                                     [key], {});
-          if (!dataTable) return;
-
-          const docLinkHtml = 'Like what you see? Visit the ' +
-            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
-            + ' to learn more about interactive tables.';
-          element.innerHTML = '';
-          dataTable['output_type'] = 'display_data';
-          await google.colab.output.renderOutput(dataTable, element);
-          const docLink = document.createElement('div');
-          docLink.innerHTML = docLinkHtml;
-          element.appendChild(docLink);
-        }
-      </script>
-    </div>
-  </div>
-
-
-
 
 ## Split dataframe to train and validation sets
 
@@ -478,12 +444,14 @@ print("Valid size: ", valid_df['id'].nunique())
 
 As I mentioned earlier, we will use VOC 2012 dataset with 17125 images and their corresponding objects from 20 classes. The paper uses COCO dataset which is an order of magnitude larger than VOC and they also pre-train the models on a much larger dataset before training on COCO. But, to stay simple, I'm gonna use this rather small VOC dataset.
 
-```classes = [
+```python
+classes = [
   "aeroplane", "bicycle", "bird", "boat", "bottle", 
   "bus", "car", "cat", "chair", "cow", 
   "diningtable", "dog", "horse", "motorbike", "person"
   "pottedplant", "sheep", "sofa", "train", "tvmonitor"
-]```
+]
+```
 
 
 ```python
@@ -1248,9 +1216,6 @@ for i, (bboxes, labels, confs) in enumerate(zip(all_bboxes, all_labels, all_conf
 
     cv2.imwrite("results/" + img_path.split("/")[-1], img[..., ::-1])
 ```
-
-
-      0%|          | 0/1 [00:00<?, ?it/s]
 
 
 # Results
