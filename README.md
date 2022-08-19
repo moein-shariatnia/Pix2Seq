@@ -31,6 +31,16 @@ python infer_single_image.py --image './VOCdevkit/VOC2012/JPEGImages/2012_000947
 ```
 
 ## Please cite this repo if it helped you.
+```
+@software{Shariatnia_Pix2Seq-pytorch_2022,
+author = {Shariatnia, M. Moein},
+doi = {10.5281/zenodo.7010778},
+month = {8},
+title = {{Pix2Seq-pytorch}},
+version = {1.0.0},
+year = {2022}
+}
+```
 [![DOI](https://zenodo.org/badge/525892539.svg)](https://zenodo.org/badge/latestdoi/525892539)
 
 # Continue of the Tutorial
