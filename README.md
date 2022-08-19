@@ -30,6 +30,9 @@ You can also test the model on your own images with the following command:
 python infer_single_image.py --image './VOCdevkit/VOC2012/JPEGImages/2012_000947.jpg'
 ```
 
+## Please cite this repo if it helped you.
+[![DOI](https://zenodo.org/badge/525892539.svg)](https://zenodo.org/badge/latestdoi/525892539)
+
 # Continue of the Tutorial
 ## What's interesting about this paper
 

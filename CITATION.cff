@@ -1,0 +1,9 @@
+cff-version: 1.0.0
+message: If you use this software, please cite it as below.
+authors:
+  - family-names: Shariatnia
+    given-names: M. Moein
+title: Pix2Seq-pytorch
+version: 1.0.0
+doi: 10.5281/zenodo.7010778
+date-released: 2022-08-19
