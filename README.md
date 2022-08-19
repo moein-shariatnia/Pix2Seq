@@ -14,6 +14,18 @@ At the end of this tutorial, you'll learn to implement a simple model for object
 
 ![link text](./imgs/results3.png)
 
+
+# Run locally
+### You can use this repo locally with the following commands. Ignore this if you want to continue with the tutorial (the rest of the tutorial is down below).
+Run the following to download the dataset, install the dependencies, and then start training.
+You need PyTorch, sklearn, numpy, pandas, matplotlib, and other common packages beside what there is in the requirements.txt file.
+```bash
+./download_data.sh
+pip install -r requirements.txt
+python train.py
+```
+
+
 ## What's interesting about this paper
 
 The idea is pretty simple: Reframe the object detection problem as a task of text (token) generation! We want the model to "tell us" what objects exist in the image and also the (x, y) coordinates of their bounding boxes (bboxes), all in a specific format in the generated sequence; just like text generation!
