@@ -12,7 +12,7 @@ Once I first heard about the paper "[Pix2seq: A Language Modeling Framework for 
 
 At the end of this tutorial, you'll learn to implement a simple model for object detection which produces the following results:
 
-![link text](./imgs/results3.png)
+![link text](./imgs/results3.jpg)
 
 
 # Run locally
