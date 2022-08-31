@@ -1,4 +1,4 @@
-# Easy Object Detection with Language Modeling: Simple Implementation of Pix2Seq model in PyTorch
+# Easy Object Detection with Transformers: Simple Implementation of Pix2Seq model in PyTorch
 
 ![](./imgs/pix2seq%20-%20framework.png)
 
