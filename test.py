@@ -50,7 +50,7 @@ def postprocess(batch_preds, batch_confs, tokenizer):
     all_labels = []
     all_confs = []
     for i, EOS_idx in enumerate(EOS_idxs.tolist()):
-        if EOS_idx == 0:
+        if EOS_idx == 0 or EOS_idx ==1: # fix : invalid idx which EOS_idx = 0 or the model detect nothing which EOS_idx = 1
             all_bboxes.append(None)
             all_labels.append(None)
             all_confs.append(None)
@@ -115,14 +115,13 @@ if __name__ == '__main__':
                 all_confs.extend(confs)        
         
         preds_df = pd.DataFrame()
-        valid_df = valid_df.iloc[:len(all_bboxes)]
-        preds_df['id'] = valid_df['id'].copy()
+        preds_df['id'] = valid_df['id'].unique().copy() # I can do this because valid_loader's option shuffle = False
         preds_df['bbox'] = all_bboxes
         preds_df['label'] = all_labels
         preds_df['conf'] = all_confs
 
         preds_df = preds_df.explode(['bbox', 'label', 'conf']).reset_index(drop=True)
-        preds_df = preds_df[preds_df['bbox'].map(lambda x: isinstance(x, list))].reset_index(drop=True)
+        preds_df = preds_df[preds_df['bbox'].map(lambda x: isinstance(x, np.ndarray))].reset_index(drop=True)
         bbox = pd.DataFrame(preds_df['bbox'].tolist(), columns=['xmin', 'ymin', 'xmax', 'ymax'])
         bbox /= float(CFG.img_size)
         preds_df = pd.concat([preds_df, bbox], axis=1)
@@ -153,4 +152,3 @@ if __name__ == '__main__':
 
     
     
-
