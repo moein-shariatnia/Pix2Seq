@@ -32,7 +32,7 @@ def generate(model, x, tokenizer, max_len=50, top_k=0, top_p=1):
             preds = model.predict(x, batch_preds)
             ## If top_k and top_p are set to default, the following line does nothing!
             preds = top_k_top_p_filtering(preds, top_k=top_k, top_p=top_p)
-            if i % 4 == 0: # get cls confidence
+            if i % 4 == 0:
                 confs_ = torch.softmax(preds, dim=-1).sort(axis=-1, descending=True)[0][:, 0].cpu()
                 confs.append(confs_)
             preds = sample(preds)
@@ -42,20 +42,20 @@ def generate(model, x, tokenizer, max_len=50, top_k=0, top_p=1):
 
 def postprocess(batch_preds, batch_confs, tokenizer):
     EOS_idxs = (batch_preds == tokenizer.EOS_code).float().argmax(dim=-1)
-    # sanity check
-    invalid_idxs = ((EOS_idxs - 1) % 5 != 0).nonzero().view(-1) # EOS_idxs minus 1 means : jump the bos
+    ## sanity check
+    invalid_idxs = ((EOS_idxs - 1) % 5 != 0).nonzero().view(-1)
     EOS_idxs[invalid_idxs] = 0
     
     all_bboxes = []
     all_labels = []
     all_confs = []
     for i, EOS_idx in enumerate(EOS_idxs.tolist()):
-        if EOS_idx == 0 or EOS_idx ==1: # fix : invalid idx which EOS_idx = 0 or the model detect nothing which EOS_idx = 1 
+        if EOS_idx == 0 or EOS_idx ==1: # fix : invalid idx which EOS_idx = 0 or the model detect nothing which EOS_idx = 1
             all_bboxes.append(None)
             all_labels.append(None)
             all_confs.append(None)
             continue
-        labels, bboxes = tokenizer.decode(batch_preds[i, :EOS_idx+1]) # plus one to include eos symbol
+        labels, bboxes = tokenizer.decode(batch_preds[i, :EOS_idx+1])
         confs = [round(batch_confs[j][i].item(), 3) for j in range(len(bboxes))]
         
         all_bboxes.append(bboxes)
@@ -113,31 +113,15 @@ if __name__ == '__main__':
                 all_bboxes.extend(bboxes)
                 all_labels.extend(labels)        
                 all_confs.extend(confs)        
-                
-        # preds_df = pd.DataFrame()
-        # valid_df = valid_df.iloc[:len(all_bboxes)]
-        # preds_df['id'] = valid_df['id'].copy()
-        # preds_df['bbox'] = all_bboxes
-        # preds_df['label'] = all_labels
-        # preds_df['conf'] = all_confs
         
-        # I think there is some bug above, because the code \
-        # do not consider the corresponding id of image, \
-        # it just trunc the valid_df with len(all_bboxes)!!!
-
         preds_df = pd.DataFrame()
         preds_df['id'] = valid_df['id'].unique().copy() # I can do this because valid_loader's option shuffle = False
         preds_df['bbox'] = all_bboxes
         preds_df['label'] = all_labels
         preds_df['conf'] = all_confs
-        
-        
+
         preds_df = preds_df.explode(['bbox', 'label', 'conf']).reset_index(drop=True)
-
-        # preds_df = preds_df[preds_df['bbox'].map(lambda x: isinstance(x, list))].reset_index(drop=True)
-        # fix : list -> np.ndarray
         preds_df = preds_df[preds_df['bbox'].map(lambda x: isinstance(x, np.ndarray))].reset_index(drop=True)
-
         bbox = pd.DataFrame(preds_df['bbox'].tolist(), columns=['xmin', 'ymin', 'xmax', 'ymax'])
         bbox /= float(CFG.img_size)
         preds_df = pd.concat([preds_df, bbox], axis=1)
@@ -164,6 +148,7 @@ if __name__ == '__main__':
     ann = valid_df[['id', 'label', 'xmin', 'xmax', 'ymin', 'ymax']].values
     det = preds_df[['id', 'label', 'conf', 'xmin', 'xmax', 'ymin', 'ymax']].values
 
-    mean_ap, average_precisions = mean_average_precision_for_boxes(ann, det, iou_threshold=0.5)   
-    
+    mean_ap, average_precisions = mean_average_precision_for_boxes(ann, det, iou_threshold=0.5)
 
+    
+    
